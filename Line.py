@@ -22,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Chat IDs
-SOURCE_CHAT_ID = -1002081479520  # Source channel ID
+SOURCE_CHAT_ID = -1001262096355  # Source channel ID
 TARGET_CHAT_ID = -1002497511035   # Destination channel ID
 
 # Mapping between source and destination message IDs using TTLCache (expires after 24 hours)
@@ -88,7 +88,8 @@ async def message_deleted_handler(event):
 async def start_userbot():
     try:
         await user_bot.start()
-        print("Bot is Online")
+        logger.info("Bot is Online")
+        #print("Bot is Online")
         await user_bot.run_until_disconnected()
     except Exception as e:
         logger.error(f"An error occurred: {e}", exc_info=True)
