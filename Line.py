@@ -15,7 +15,7 @@ user_bot = TelegramClient(StringSession(SESSION_STRING), API_ID, API_HASH)
 
 # Setup logging (set to WARNING for optimized production logging)
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler()]
 )
@@ -50,7 +50,8 @@ async def forward_text_message(text, source_id):
 async def new_message_handler(event):
     if event.message.text:
         logger.info(f"Received new message (ID: {event.message.id}).")
-        await forward_text_message(event.message.text, event.message.id)
+        #await forward_text_message(event.message.text, event.message.id)
+        asyncio.create_task(forward_text_message(event.message.text, event.message.id))
     else:
         logger.info("Message has no text; ignoring.")
 
