@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import re
+import unicodedata
 from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 from telethon.errors import FloodWaitError
@@ -32,6 +33,8 @@ TARGET_CHAT_ID = -1001075055733 # Express Line
 # Mapping between source and destination message IDs using TTLCache (expires after 24 hours)
 message_map = TTLCache(maxsize=10000, ttl=86400)
 
+FORBIDDEN_WORDS_LIST = {'id', 'bet','fairplay'}
+
 # === Regex Filtering Setup ===
 # Regex to match URLs (http/https or www links)
 #URL_REGEX = re.compile(r'(https?://\S+|www\.\S+)', re.IGNORECASE)
@@ -56,23 +59,28 @@ EMOJI_REGEX = re.compile(
     flags=re.UNICODE
 )
 
-# New: Regex for forbidden words (e.g., "ID", "Bet") as whole words
-FORBIDDEN_WORDS_REGEX = re.compile(r'\b(?:ID|Bet)\b', re.IGNORECASE)
+def forbidden_words_check(text: str) -> bool:
+    """
+    Check if any forbidden word (from FORBIDDEN_WORDS_LIST) is present as a whole word in the text.
+    This function is case-insensitive.
+    """
+    # Convert text to lowercase and extract all whole words
+    words = re.findall(r'\b\w+\b', text.lower())
+    # Return True if any forbidden word is found
+    return any(word in FORBIDDEN_WORDS_LIST for word in words)
+
+def normalize_text(text: str) -> str:
+    return unicodedata.normalize('NFC', text)
 
 def contains_forbidden(text: str) -> bool:
-    """
-    Returns True if the text contains any forbidden content:
-    - URLs or website links
-    - Telegram usernames (starting with '@')
-    - Any emoji
-    """
-    if URL_REGEX.search(text):
+    norm_text = normalize_text(text)
+    if URL_REGEX.search(norm_text):
         return True
-    if USERNAME_REGEX.search(text):
+    if USERNAME_REGEX.search(norm_text):
         return True
-    if EMOJI_REGEX.search(text):
+    if EMOJI_REGEX.search(norm_text):
         return True
-    if FORBIDDEN_WORDS_REGEX.search(text):
+    if forbidden_words_check(norm_text):
         return True
     return False
 
