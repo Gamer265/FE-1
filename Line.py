@@ -26,7 +26,8 @@ logger = logging.getLogger(__name__)
 # Chat IDs
 #SOURCE_CHAT_ID = -1002081479520  # Source channel ID
 SOURCE_CHAT_ID = -1001262096355  # Source channel ID
-TARGET_CHAT_ID = -1002497511035   # Destination channel ID
+TARGET_CHAT_ID = -1001075055733 # Express Line
+#TARGET_CHAT_ID = -1002497511035   # Destination channel ID
 
 # Mapping between source and destination message IDs using TTLCache (expires after 24 hours)
 message_map = TTLCache(maxsize=10000, ttl=86400)
@@ -35,16 +36,28 @@ message_map = TTLCache(maxsize=10000, ttl=86400)
 # Regex to match URLs (http/https or www links)
 #URL_REGEX = re.compile(r'(https?://\S+|www\.\S+)', re.IGNORECASE)
 URL_REGEX = re.compile(
-    r'(https?://\S+|www\.\S+|t\.me/\S+|telegram\.me/\S+|\S+\.com\b)',
-    re.IGNORECASE)
+    r'(https?://[^\s]+|'              # Matches http:// or https:// URLs
+    r'www\.[^\s]+|'                   # Matches URLs starting with www. (dot required)
+    r't\.me/[^\s]+|'                  # Matches Telegram short links t.me/...
+    r'telegram\.me/[^\s]+|'           # Matches Telegram links telegram.me/...
+    r'[^\s]+\.[a-z]{2,}(?=\s|$|[^\w]))',  # Matches bare domains (any TLD of at least 2 letters)
+    re.IGNORECASE
+)
 
 # Regex to match Telegram usernames (starting with '@')
 USERNAME_REGEX = re.compile(r'@\w+', re.IGNORECASE)
 
 # Regex to match common emoji ranges
-EMOJI_REGEX = re.compile(r'['
-                         u"\U0001F600-\U0001F64F"
-                         ']', flags=re.UNICODE)
+EMOJI_REGEX = re.compile(
+    r'['
+    u"\U0001F600-\U0001F64F"  # Emoticons
+    u"\U0001F446-\U0001F44F"  # Common hand emojis
+    ']',
+    flags=re.UNICODE
+)
+
+# New: Regex for forbidden words (e.g., "ID", "Bet") as whole words
+FORBIDDEN_WORDS_REGEX = re.compile(r'\b(?:ID|Bet)\b', re.IGNORECASE)
 
 def contains_forbidden(text: str) -> bool:
     """
@@ -58,6 +71,8 @@ def contains_forbidden(text: str) -> bool:
     if USERNAME_REGEX.search(text):
         return True
     if EMOJI_REGEX.search(text):
+        return True
+    if FORBIDDEN_WORDS_REGEX.search(text):
         return True
     return False
 
