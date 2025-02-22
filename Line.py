@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 # Chat IDs
 #SOURCE_CHAT_ID = -1002081479520  # Source channel ID
 SOURCE_CHAT_ID = -1001262096355  # Source channel ID
-#TARGET_CHAT_ID = -1001075055733 # Express Line
-TARGET_CHAT_ID = -1002497511035   # Destination channel ID
+TARGET_CHAT_ID = -1001075055733 # Express Line
+#TARGET_CHAT_ID = -1002497511035   # Destination channel ID
 
 # Mapping between source and destination message IDs using TTLCache (expires after 24 hours)
 message_map = TTLCache(maxsize=10000, ttl=86400)
