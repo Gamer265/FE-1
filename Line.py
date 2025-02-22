@@ -51,7 +51,7 @@ USERNAME_REGEX = re.compile(r'@\w+', re.IGNORECASE)
 EMOJI_REGEX = re.compile(
     r'['
     u"\U0001F600-\U0001F64F"  # Emoticons
-    u"\U0001F446-\U0001F44F"  # Common hand emojis
+    #u"\U0001F446-\U0001F44F"  # Common hand emojis
     ']',
     flags=re.UNICODE
 )
